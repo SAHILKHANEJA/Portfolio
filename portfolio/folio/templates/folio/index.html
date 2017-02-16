@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+    .nav-wrapper
+    {
+      background : #536dfe; 
+    }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.1.0/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.1.0/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.6.2/remarkable.min.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/static/fs-icon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/fs-icon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js">
+    </script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+    </script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      var location_array =[];
+      var text_select = '<option value="delhi">delhi</option>';
+      $(document).ready(function(){
+        $('.parallax').parallax();
+        $('select').material_select();
+        $('.datepicker').pickadate({
+            selectMonths: true,
+            selectYears: 1,
+            format : 'yyyy-mm-dd',
+            max : new Date(),
+            min : -60,
+           });
+        $.ajax({
+          url : '/folio/',
+          type: 'GET',
+          dataType : 'json',
+          success : function(data){
+            location_array = data.data;
+            console.log(location_array);
+            for(var i=0;i<location_array.length;i++){
+              text_select += '<option value="' + location_array[i] + '">' + location_array[i] +
+              "</option> ";
+            }
+            tag = document.getElementById('location');
+            tag.innerHTML = text_select;
+            $('select').material_select();
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <nav>
+      <div class = "nav-wrapper" >
+        <a href="#" class="brand-logo center">Indian Weather and Climate App</a>
+      </div>
+    </nav>
+    <div class = "parallax-container">
+      <div class="parallax"><img src="http://www.wallpaperbetter.com/wallpaper/914/562/470/hot-air-balloon-1080P-wallpaper.jpg">
+      </div>
+    </div>
+    <div class="section white">
+    <div class="row" style="padding:2% 5%">
+      <h2 class="header">Weather</h2>
+      <p class="grey-text text-darken-3 lighten-3">Lets check the weather for an indian state. But this only contains some specific states</p>
+    </div>
+    </div>
+    <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <form onsubmit="event.preventDefault()">
+        <div class="input-field">
+          <select value="" id='weather'>
+            <option value="temp">Temperature</option>
+            <option value="humidity">Humidity</option>
+            <option value="wind">Wind Speed</option>
+          </select>
+          <label style="left:0">Please select what you want to see</label>
+        </div>
+        <br/>
+        <div class="input-field">
+          <select id="location" value="">
+          </select>
+          <label style="left:0">Please select an Indian City</label>
+        </div>
+        <br />
+        <div class="input-field">
+          <input id="state_name" type="text" class="validate" name="state_name">
+          <label style="left:0" for="state_name">Please Enter the name of the city if it is not present above</label>
+        </div>
+        <br>
+        <div class="input-field">
+          <input class="datepicker" type="date" id="start_date" class="validate" required/>
+          <label for="start_date">Start Date</label>
+        </div>
+        <div class="input-field">
+          <input class="datepicker" type="date" id="last_date" class="validate" required/>
+          <label for="last_date">Last Date</label>
+        </div>
+        <div>
+          <button class="btn waves-effect waves-light" style="margin:auto;display:block" type="submit" name="action" id="weather_button">Submit
+            <i class="material-icons right">send</i>
+          </button>
+        </div>
+        </form>
+      </div>
+    </div>
+    <div id="chart_div"></div>
+    </div>
+    <div class="row" style="margin-bottom:40px;"></div> 
+    <div class = "parallax-container">
+      <div class="parallax"><img src="http://static.panoramio.com/photos/large/47523911.jpg">
+    </div>
+  </div>
+    <footer class="page-footer" style="margin-top:0px;background:#448aff">
+          <div class="container">
+            <div class="row">
+              <div class="col s12">
+                <h5 class="white-text">A Small Web App By Sahil Khaneja</h5>
+                <p class="grey-text text-lighten-4">We can add and check whether of Indian City using this webapp , if wunderground api has that city marked with it.</p>
+              </div>
+            </div>
+          </div>
+          <div class="footer-copyright">
+            <div class="container">
+            © 2017 Copyright Text By Sahil
+            </div>
+          </div>
+        </footer> 
+
+<script>
+  $('#weather_button').click(function(){
+    var text = $('#location option:selected').text().trim();
+    var param = $('#weather').val().trim();
+    var state_name = $('#state_name').val().trim();
+    var start_date = new Date($('#start_date').val());
+    var last_date = new Date($('#last_date').val());
+    var time_diff = Math.abs(last_date.getTime() - start_date.getTime());
+    var day_diff  = Math.ceil(time_diff / (1000 * 3600 * 24)) + 1;
+    var counter = 0;
+    var day_map =[];
+    console.log(last_date,start_date);
+    if(last_date < start_date){
+      $('#last_date').removeClass('valid');
+      $('#last_date').addClass('invalid');
+      return;
+    }
+    else
+    {
+      $('#last_date').removeClass('invalid');
+      $('#last_date').addClass('valid');
+    }
+    if(state_name){
+      state_name = state_name.split(" ").join("_");
+      text = state_name;
+      $.ajax({
+        url:"/folio/",
+        type: 'POST',
+        data : {"state_name":state_name},
+        dataType : 'json',
+        success : function(data){
+          console.log(data.state_name);
+          location_array.push(data.state_name);
+          text_select += '<option value="'+data.state_name+'">'+data.state_name+'</option>';
+          document.getElementById('location').innerHTML = text_select;
+          $('select').material_select();
+          }
+        });
+      }
+      for(var date = new Date(start_date);date <= last_date; date.setDate(date.getDate()+1)){
+        var string = String(date.getFullYear());
+        string += date.getMonth() + 1 < 10 ? "0" + String(date.getMonth() + 1) :String(date.getMonth() + 1);
+        string += date.getDate() <10 ? "0" + String(date.getDate()) : String(date.getDate());
+        console.log(string);
+        var url = "http://api.wunderground.com/api/8ae35b3e77045a27/history_"+string +"/q/India/"+
+        text+".json";
+        console.log(url);
+        $.ajax({
+          url : url,
+          dataType : "jsonp",
+          success : function(parsed_json) {
+            if(parsed_json.history){
+              data = parsed_json.history.dailysummary[0];
+              date_sort = data.date.year + data.date.mon + data.date.mday;
+              day_map.push({"temp":data.meantempm,"humidity":data.humidity,"wind":data.meanwindspdm,"date":date_sort});
+              counter++;
+              if(counter == day_diff){
+                plot(day_map,start_date,param);
+              }
+          }
+          else{
+            document.getElementById('chart_div').innerHTML = "<h1>Sorry we are unable to fetch the requested Data</h1>";
+          }
+          }
+        });
+      }
+    });
+</script>
+<script>
+ function plot(day_map,date,param){
+      day_map.sort(function(a,b){
+        return a.date - b.date;
+      });
+      console.log(day_map,date);
+      google.charts.load('current', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        var arr = [];
+        for(var j=0;j<day_map.length;j++){
+          arr.push([date.toDateString(),parseInt(day_map[j][param])]);
+          date.setDate(date.getDate()+1);
+        }
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+        for(var i=0;i<day_map.length;i++){
+        data.addRows([
+          arr[i],
+        ]);
+      }
+
+        // Set chart options
+        var options = {'title':'Bar Chart to Show the temperature',
+                       'width':800,
+                       'height':600};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+    }
+</script>
+</body>
+</html>
+
